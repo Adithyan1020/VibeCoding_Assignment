@@ -19,13 +19,11 @@ export const ProfileList = React.memo(function ProfileList({
 }: ProfileListProps) {
   if (profiles.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-3xl border border-gray-100 shadow-sm">
-        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-          <SearchX className="w-8 h-8 text-gray-400" />
-        </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">No profiles found</h3>
-        <p className="text-gray-500 text-center max-w-sm">
-          We couldn't find any creators matching your search on {platform}. Try adjusting your filters or search term.
+      <div className="flex flex-col items-center justify-center py-20 px-4 bg-white brutal-border brutal-shadow">
+        <SearchX className="w-16 h-16 text-black mb-4" />
+        <h3 className="text-4xl font-heading text-black uppercase tracking-tighter mb-4 text-center">NOTHING FOUND</h3>
+        <p className="text-xl font-bold text-center max-w-sm">
+          No creators match your search. Try different keywords or switch platforms.
         </p>
       </div>
     );
@@ -39,10 +37,10 @@ export const ProfileList = React.memo(function ProfileList({
         hidden: { opacity: 0 },
         show: {
           opacity: 1,
-          transition: { staggerChildren: 0.05 }
+          transition: { staggerChildren: 0.1 }
         }
       }}
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 gap-y-12 pb-20"
     >
       {profiles.map((profile) => (
         <ProfileCard

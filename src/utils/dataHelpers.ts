@@ -15,7 +15,13 @@ export function getSearchData(platform: Platform): SearchData {
 
 export function extractProfiles(platform: Platform): UserProfileSummary[] {
   const data = getSearchData(platform);
-  return data.accounts.map((item) => item.account.user_profile);
+  return data.accounts.map((item) => {
+    const p = item.account.user_profile;
+    return {
+      ...p,
+      username: p.username || p.handle || p.user_id
+    };
+  });
 }
 
 export function filterProfiles(
@@ -24,8 +30,8 @@ export function filterProfiles(
 ): UserProfileSummary[] {
   if (!query) return profiles;
   return profiles.filter((p) => {
-    const matchUsername = p.username.toLowerCase().includes(query.toLowerCase());
-    const matchFullname = p.fullname.toLowerCase().includes(query.toLowerCase());
+    const matchUsername = (p.username || p.handle || p.user_id || "").toLowerCase().includes(query.toLowerCase());
+    const matchFullname = (p.fullname || "").toLowerCase().includes(query.toLowerCase());
     return matchUsername || matchFullname;
   });
 }

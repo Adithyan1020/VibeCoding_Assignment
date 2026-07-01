@@ -3,21 +3,11 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import type { FullUserProfile, ProfileDetailResponse } from "@/types";
-import { formatEngagementRate, formatFollowers } from "@/utils/formatters";
+import { formatFollowers } from "@/utils/formatters";
 import { loadProfileByUsername } from "@/utils/profileLoader";
 import { useListStore } from "@/store/listStore";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, BookmarkPlus, BookmarkCheck, Users, TrendingUp, Image, Heart, MessageCircle, PlaySquare, Target, type LucideIcon } from "lucide-react";
-
-const MetricCard = ({ icon: Icon, label, value }: { icon: LucideIcon, label: string, value: React.ReactNode }) => (
-  <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
-    <div className="flex items-center gap-2 text-gray-500 mb-2">
-      <Icon className="w-4 h-4" />
-      <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
-    </div>
-    <div className="text-xl font-bold text-gray-900">{value}</div>
-  </div>
-);
+import { ArrowLeft } from "lucide-react";
 
 export function ProfileDetailPage() {
   const { username } = useParams<{ username: string }>();
@@ -35,9 +25,9 @@ export function ProfileDetailPage() {
     });
   }, [username]);
 
-  if (!username) return <Layout><p>Invalid profile</p><Link to="/">Back</Link></Layout>;
-  if (!loaded) return <Layout><div className="flex justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div></Layout>;
-  if (!profileData) return <Layout><div className="text-center py-20"><p className="text-red-600 mb-4">Could not load profile details for {username}</p><Link to="/" className="text-indigo-600 font-medium">← Back to search</Link></div></Layout>;
+  if (!username) return <Layout><p className="font-bold text-xl">Invalid profile</p></Layout>;
+  if (!loaded) return <Layout><div className="flex justify-center py-20"><h1 className="text-4xl font-heading animate-pulse uppercase">LOADING...</h1></div></Layout>;
+  if (!profileData) return <Layout><div className="bg-white p-8 brutal-border brutal-shadow text-center max-w-xl mx-auto mt-20"><h1 className="text-4xl font-heading uppercase text-brutal-red mb-6">404 NOT FOUND</h1><Link to="/" className="inline-block px-8 py-3 bg-black text-white font-bold text-xl brutal-border hover:bg-brutal-yellow hover:text-black transition-colors">GO BACK</Link></div></Layout>;
 
   const user: FullUserProfile = profileData.data.user_profile;
   const isSaved = isProfileSaved(user.username);
@@ -45,79 +35,108 @@ export function ProfileDetailPage() {
   return (
     <Layout>
       <motion.div 
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto"
+        className="max-w-5xl mx-auto"
       >
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 mb-8 transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Search
+        <Link to="/" className="inline-flex items-center gap-2 text-xl font-bold text-black hover:text-brutal-red mb-8 transition-colors bg-white brutal-border brutal-shadow px-4 py-2">
+          <ArrowLeft className="w-6 h-6" />
+          BACK
         </Link>
 
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header Banner (Simulated) */}
-          <div className="h-32 bg-gradient-to-r from-indigo-500 to-purple-600 w-full" />
+        {/* Mac OS Window Container */}
+        <div className="bg-white brutal-border brutal-shadow overflow-hidden flex flex-col md:flex-row">
           
-          <div className="px-8 pb-8">
-            <div className="relative flex justify-between items-end -mt-12 mb-6">
-              <img
-                src={user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`}
-                onError={(e) => {
-                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`;
-                }}
-                className="w-32 h-32 rounded-2xl border-4 border-white shadow-md object-cover bg-white"
-                alt={user.username}
-              />
+          {/* Left Side: Window Header + Profile Picture */}
+          <div className="md:w-1/2 p-6 md:p-12 border-b-4 md:border-b-0 md:border-r-4 border-black flex flex-col">
+            <div className="flex gap-2 mb-8 bg-gray-200 p-2 brutal-border w-fit">
+              <div className="w-4 h-4 rounded-full bg-brutal-red brutal-border"></div>
+              <div className="w-4 h-4 rounded-full bg-brutal-yellow brutal-border"></div>
+              <div className="w-4 h-4 rounded-full bg-brutal-green brutal-border"></div>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center items-center">
+              <div className="relative p-6 bg-brutal-red brutal-border">
+                <div className="absolute inset-0 m-4 bg-brutal-yellow brutal-border pointer-events-none"></div>
+                <div className="relative z-10 bg-brutal-green p-4 brutal-border">
+                  <img
+                    src={user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`}
+                    onError={(e) => {
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`;
+                    }}
+                    className="w-48 h-48 sm:w-64 sm:h-64 object-cover filter grayscale mix-blend-multiply"
+                    alt={user.username}
+                  />
+                  <div className="absolute bottom-4 right-4 rotate-[-10deg]">
+                    <div className="bg-white px-4 py-2 brutal-border text-center">
+                      <p className="text-xs uppercase font-bold text-gray-500 mb-1">Engagement</p>
+                      <p className="font-heading text-2xl">{user.engagement_rate !== undefined ? (user.engagement_rate * 100).toFixed(1) + "%" : "N/A"}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side: Info & Actions */}
+          <div className="md:w-1/2 p-6 md:p-12 flex flex-col bg-gray-50">
+            <div className="mb-8">
+              <h1 className="text-4xl sm:text-5xl font-heading text-black uppercase tracking-tighter mb-2 flex items-center gap-4">
+                {user.fullname || user.username}
+                <VerifiedBadge verified={user.is_verified} />
+              </h1>
+              <p className="text-2xl font-bold bg-black text-white inline-block px-4 py-1 brutal-border mb-6">
+                @{user.username}
+              </p>
               
-              <div className="flex gap-3">
-                {user.url && (
-                  <a
-                    href={user.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl font-medium transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Visit Profile
-                  </a>
-                )}
-                <button
-                  className={`inline-flex items-center gap-2 px-5 py-2 rounded-xl font-medium transition-all ${
-                    isSaved 
-                      ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-100" 
-                      : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-200"
-                  }`}
-                  onClick={() => isSaved ? removeProfile(user.username) : addProfile(user)}
-                >
-                  {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <BookmarkPlus className="w-4 h-4" />}
-                  {isSaved ? "Saved to List" : "Save Profile"}
-                </button>
+              <p className="text-lg leading-relaxed whitespace-pre-wrap font-sans text-gray-800">
+                {user.description || "Hey folks, I am a passionate creator who loves to learn, grow and create awesome stuff. Yes I do create !! :D"}
+              </p>
+            </div>
+
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 gap-0 border-t-4 border-l-4 border-black mb-8 bg-white">
+              <div className="p-4 border-b-4 border-r-4 border-black flex flex-col justify-center items-center">
+                <span className="text-sm font-bold uppercase text-gray-500">Followers</span>
+                <span className="font-heading text-3xl">{formatFollowers(user.followers)}</span>
+              </div>
+              <div className="p-4 border-b-4 border-r-4 border-black flex flex-col justify-center items-center">
+                <span className="text-sm font-bold uppercase text-gray-500">Avg Views</span>
+                <span className="font-heading text-3xl">{formatFollowers(user.avg_views || 0)}</span>
+              </div>
+              <div className="p-4 border-b-4 border-r-4 border-black flex flex-col justify-center items-center">
+                <span className="text-sm font-bold uppercase text-gray-500">Platform</span>
+                <span className="font-heading text-3xl uppercase">{platform}</span>
+              </div>
+              <div className="p-4 border-b-4 border-r-4 border-black flex flex-col justify-center items-center bg-brutal-yellow">
+                <span className="text-sm font-bold uppercase text-black">Posts</span>
+                <span className="font-heading text-3xl text-black">{user.posts_count || "N/A"}</span>
               </div>
             </div>
 
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                {user.fullname}
-                <VerifiedBadge verified={user.is_verified} />
-              </h1>
-              <p className="text-lg text-gray-500 font-medium">@{user.username} • <span className="capitalize">{platform}</span></p>
+            {/* Actions */}
+            <div className="mt-auto flex flex-col sm:flex-row gap-4">
+              <button
+                className="flex-1 py-4 px-6 bg-brutal-red text-white text-2xl font-heading uppercase brutal-border brutal-shadow-hover hover:bg-black transition-all"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeProfile(user.username);
+                }}
+              >
+                REJECT
+              </button>
               
-              {user.description && (
-                <p className="mt-4 text-gray-600 text-lg leading-relaxed max-w-2xl whitespace-pre-wrap">
-                  {user.description}
-                </p>
-              )}
-            </div>
-
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Performance Metrics</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <MetricCard icon={Users} label="Followers" value={formatFollowers(user.followers)} />
-              <MetricCard icon={TrendingUp} label="Engagement" value={formatEngagementRate(user.engagement_rate)} />
-              {user.posts_count !== undefined && <MetricCard icon={Image} label="Total Posts" value={user.posts_count.toLocaleString()} />}
-              {user.avg_likes !== undefined && <MetricCard icon={Heart} label="Avg. Likes" value={formatFollowers(user.avg_likes)} />}
-              {user.avg_comments !== undefined && <MetricCard icon={MessageCircle} label="Avg. Comments" value={formatFollowers(user.avg_comments)} />}
-              {user.avg_views !== undefined && user.avg_views > 0 && <MetricCard icon={PlaySquare} label="Avg. Views" value={formatFollowers(user.avg_views)} />}
-              {user.engagements !== undefined && <MetricCard icon={Target} label="Engagements" value={formatFollowers(user.engagements)} />}
+              <button
+                className={`flex-1 py-4 px-6 text-white text-2xl font-heading uppercase brutal-border brutal-shadow-hover transition-all ${
+                  isSaved ? "bg-black" : "bg-brutal-purple hover:bg-black"
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isSaved) addProfile(user);
+                }}
+              >
+                {isSaved ? "SHORTLISTED" : "SHORTLIST"}
+              </button>
             </div>
           </div>
         </div>
